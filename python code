@@ -1,0 +1,51 @@
+import numpy as np
+import cantera as ct
+import matplotlib.pyplot as plt
+
+mech = 'gri30.cti' 
+gas = ct.Solution('gri30.xml')
+
+
+T = 1000.0
+P = ct.one_atm
+X = 'C3H8:2.8 O2:5 N2:18.8' 
+gas.TPX = T,P,X
+
+r=ct.Reactor(gas)
+sim=ct.ReactorNet([r])
+
+times=np.zeros(2000)
+data=np.zeros([2000,4])
+
+tk=1
+
+dt=tk/2000
+time=0
+n=0
+
+while n<2000:
+        time+=dt
+        sim.advance(time)
+        times[n]=time
+        data[n,0]=r.T
+        #data[n,1]=r.thermo('OH')
+        #data[n,2]=r.molefraction('C3H8')
+        #data[n,3]=r.molefraction('O2')
+        data[n,1:]=r.thermo['O2', 'H' , 'C3H8'].X
+    
+        #print('%10.3e %10.3f ' % (sim.time, r.T))
+        n += 1
+    
+    
+plt.plot(times,data[:,0])
+plt.show()
+
+plt.plot(times,data[:,1])
+plt.show()
+
+plt.plot(times,data[:,2])
+plt.show()
+
+plt.plot(times,data[:,3])
+plt.show()
+
